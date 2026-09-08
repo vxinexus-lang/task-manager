@@ -35,6 +35,19 @@ function App() {
       });
   };
 
+
+  /* */
+  const deleteTask = (id) => {
+  fetch(`http://localhost:5000/api/tasks/${id}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then(() => {
+      getTasks();
+    });
+};
+
+
   return (
     <div>
       <h1>Task Manager</h1>
@@ -52,8 +65,14 @@ function App() {
 
       <ul>
         {tasks.map((task) => (
-          <li key={task.id}>{task.title}</li>
-        ))}
+  <li key={task.id}>
+    {task.title}
+
+    <button onClick={() => deleteTask(task.id)}>
+      Delete
+    </button>
+  </li>
+))}
       </ul>
     </div>
   );

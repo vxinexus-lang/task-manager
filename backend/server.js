@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 
+const db = require("./database");
+
 const app = express();
 
 app.use(cors());
@@ -11,28 +13,35 @@ app.get("/api/hello", (req, res) => {
     message: "Hello from my backend! 🚀"
   });
 });
-/*new2*/ 
-app.post("/api/tasks", (req, res) => {
-  const newTask = {
-    id: tasks.length + 1,
-    title: req.body.title
-  };
+app.get("/api/tasks", (req, res) => {
+  const tasks = db.prepare("SELECT * FROM tasks").all();
 
-  tasks.push(newTask);
+  res.json(tasks);
+});
+
+app.post("/api/tasks", (req, res) => {
+  const { title } = req.body;
+
+  const result = db
+    .prepare("INSERT INTO tasks (title) VALUES (?)")
+    .run(title);
+
+  const newTask = db
+    .prepare("SELECT * FROM tasks WHERE id = ?")
+    .get(result.lastInsertRowid);
 
   res.json(newTask);
 });
 
+/* */ 
+app.delete("/api/tasks/:id", (req, res) => {
+  const { id } = req.params;
 
-/*new1*/ 
-let tasks = [
-  { id: 1, title: "Learn React" },
-  { id: 2, title: "Build Backend" },
-  { id: 3, title: "Connect API" }
-];
+  db.prepare("DELETE FROM tasks WHERE id = ?").run(id);
 
-app.get("/api/tasks", (req, res) => {
-  res.json(tasks);
+  res.json({
+    message: "Task deleted successfully"
+  });
 });
 
 app.listen(5000, () => {
