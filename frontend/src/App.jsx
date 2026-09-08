@@ -1,24 +1,60 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
-  const [message, setMessage] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState("");
 
-  const callAPI = async () => {
-    const response = await fetch("http://localhost:5000/api/hello");
-    const data = await response.json();
+  const getTasks = () => {
+    fetch("http://localhost:5000/api/tasks")
+      .then((response) => response.json())
+      .then((data) => {
+        setTasks(data);
+      });
+  };
 
-    setMessage(data.message);
+  useEffect(() => {
+    getTasks();
+  }, []);
+
+  const addTask = () => {
+    if (title.trim() === "") return;
+
+    fetch("http://localhost:5000/api/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: title,
+      }),
+    })
+      .then((response) => response.json())
+      .then(() => {
+        setTitle("");
+        getTasks();
+      });
   };
 
   return (
     <div>
       <h1>Task Manager</h1>
 
-      <button onClick={callAPI}>
-        Test Backend API
-      </button>
+      <input
+        type="text"
+        placeholder="Enter a task"
+        value={title}
+        onChange={(event) => setTitle(event.target.value)}
+      />
 
-      <p>{message}</p>
+      <button onClick={addTask}>Add Task</button>
+
+      <h2>My Tasks</h2>
+
+      <ul>
+        {tasks.map((task) => (
+          <li key={task.id}>{task.title}</li>
+        ))}
+      </ul>
     </div>
   );
 }
