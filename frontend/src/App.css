@@ -25,9 +25,7 @@ h1 {
   color: #d94f7d;
 }
 
-h1::after {
-  content: " 🎀";
-}
+/*
 
 h2 {
   color: #8f3d5c;
